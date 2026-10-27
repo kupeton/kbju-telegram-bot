@@ -1,0 +1,34 @@
+# Локальные секреты и настройки
+.env
+.env.*
+!.env.example
+
+# Node / TypeScript
+node_modules/
+dist/
+build/
+coverage/
+*.tsbuildinfo
+*.log
+npm-debug.log*
+
+# Сгенерированный Prisma Client (создаётся через npm run db:generate)
+/generated/prisma/
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Локальные базы данных
+*.db
+*.sqlite
+*.sqlite3
+
+# Существующие локальные Python-окружения и кэши
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/

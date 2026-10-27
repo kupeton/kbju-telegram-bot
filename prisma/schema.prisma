@@ -1,0 +1,69 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum ProductSource {
+  MANUAL
+  OPEN_FOOD_FACTS
+}
+
+enum NutritionBasis {
+  G100
+  ML100
+}
+
+model User {
+  id           Int         @id @default(autoincrement())
+  telegramId   BigInt      @unique
+  timezone     String      @default("Europe/Moscow")
+  calorieGoal  Int?
+  products     Product[]   @relation("OwnedProducts")
+  entries      FoodEntry[]
+  createdAt    DateTime    @default(now())
+}
+
+model Product {
+  id         Int           @id @default(autoincrement())
+  ownerId    Int?
+  owner      User?         @relation("OwnedProducts", fields: [ownerId], references: [id], onDelete: Cascade)
+  name       String
+  brand      String        @default("")
+  stores     String[]      @default([])
+  barcode    String?       @unique
+  source     ProductSource @default(MANUAL)
+  basis      NutritionBasis @default(G100)
+  calories   Float
+  proteins   Float
+  fats       Float
+  carbs      Float
+  entries    FoodEntry[]
+  createdAt  DateTime      @default(now())
+
+  @@index([ownerId])
+  @@index([name])
+}
+
+model FoodEntry {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productId   Int
+  product     Product  @relation(fields: [productId], references: [id], onDelete: Restrict)
+  productName String
+  day         String   // локальный день YYYY-MM-DD по часовому поясу пользователя
+  amount      Float    // граммы или миллилитры согласно basis
+  basis       NutritionBasis
+  calories    Float    // снимок КБЖУ, чтобы история не менялась при обновлении карточки
+  proteins    Float
+  fats        Float
+  carbs       Float
+  createdAt   DateTime @default(now())
+
+  @@index([userId, day])
+  @@index([userId, createdAt])
+}
